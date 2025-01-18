@@ -1,6 +1,9 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+// Keep Alive Code
+const keep_alive = require('./keep_alive.js')
+
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const client = new Client({
     intents: [
