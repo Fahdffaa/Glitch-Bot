@@ -184,8 +184,8 @@ client.on('messageCreate', async (message) => {
         const member = message.guild.members.cache.get(userId);
         if (member) {
             member.timeout(10 * 60 * 1000, 'استخدام كلمات سيئة') // 10 minutes in milliseconds
-                .catch(async (error) => {
-                    console.error(error);
+                .catch(async () => {
+                    console.log('cant timeout member');
                 });
         }
 
@@ -205,7 +205,7 @@ client.on('messageCreate', async (message) => {
             const memberToKick = message.guild.members.cache.get(userId);
             if (memberToKick) {
                 memberToKick.kick('وصل الحد الأقصى من التحذيرات')
-                    .catch(console.error);
+                    .catch(console.log('cant kick member'));
             }
         }
     }
