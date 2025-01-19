@@ -1,6 +1,8 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+const keep_alive = require('./keep_alive.js')
+
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const client = new Client({
     intents: [
@@ -164,7 +166,7 @@ client.on('messageCreate', async (message) => {
     ${message.content}  
 
     **التحذيرات المتبقية**  
-    ${5 - warnings[userId]}`
+    ${5 - warnings[userId]}` 
             );
 
         // تحديد قناة التحذيرات
@@ -172,18 +174,18 @@ client.on('messageCreate', async (message) => {
         
         // إرسال التحذير إلى القناة
         if (warningChannel) {
-            warningChannel.send({ embeds: [WarnEmbed] }).then(() => message.delete());
+            warningChannel.send({ embeds: [WarnEmbed] })
+                .then(() => message.delete())
+                .catch(() => console.log('Warning: Failed to send warning embed or delete message'));
         } else {
-            console.error('Channel not found');
+            console.log('Warning: Warning channel not found');
         }
 
         // Apply timeout (10 minutes)
         const member = message.guild.members.cache.get(userId);
         if (member) {
             member.timeout(10 * 60 * 1000, 'استخدام كلمات سيئة') // 10 minutes in milliseconds
-                .catch(async (error) => {
-                    console.error(error);
-                });
+                .catch(() => console.log('Warning: Failed to timeout member'));
         }
 
         // Check if warnings exceed limit and kick the user
@@ -195,14 +197,15 @@ client.on('messageCreate', async (message) => {
 
             // Send punishment notice
             if (warningChannel) {
-                warningChannel.send({ embeds: [punishEmbed] });
+                warningChannel.send({ embeds: [punishEmbed] })
+                    .catch(() => console.log('Warning: Failed to send punishment embed'));
             }
 
             // Kick the user
             const memberToKick = message.guild.members.cache.get(userId);
             if (memberToKick) {
                 memberToKick.kick('وصل الحد الأقصى من التحذيرات')
-                    .catch(console.error);
+                    .catch(() => console.log('Warning: Failed to kick member'));
             }
         }
     }
