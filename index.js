@@ -92,95 +92,106 @@ const PunishmentsEmbed = new EmbedBuilder()
 **السبب**: وصول الحد الأقصى من التحذيرات`
     );
 
-// Regular expressions to match variations of bad words
 const BadWordsRegex = [
-    /\bني[\W_]*ق[\W_]*ا\b/i, // نيقا
-    /\bن[\W_]*ق[\W_]*ا\b/i,  // نقا
-    /\bني[\W_]*ق[\W_]*ر\b/i, // نيقر
-    /\bن[\W_]*ق[\W_]*ر\b/i,  // نقر
-    /\bب[\W_]*ت[\W_]*ش\b/i,  // بتش
-    /\bب[\W_]*ي[\W_]*ت[\W_]*ش\b/i, // بييتش
-    /\bد[\W_]*ك\b/i,  // دك
-    /\bني[\W_]*ق[\W_]*ا[\W_]*ز\b/i, // نيقاز
-    /\bن[\W_]*ق[\W_]*ا[\W_]*ز\b/i,  // نقاز
-    /\bني[\W_]*ق[\W_]*ر[\W_]*ز\b/i, // نيقرز
-    /\bن[\W_]*ق[\W_]*ر[\W_]*ز\b/i,  // نقرز
-    /\bق[\W_]*ا[\W_]*ي\b/i,  // قاي
-    /\bق[\W_]*ي\b/i,  // قي
-    /\bز[\W_]*و[\W_]*ط\b/i,  // زوط
-    /\bا[\W_]*م[\W_]*ك\b/i,  // أمك
-    /\byour[\W_]*mom\b/i,  // your mom
-    /\byou[\W_]*mom\b/i,  // you mom
-    /\bf[\W_]*u[\W_]*c[\W_]*k\b/i,  // fuck
-    /\bف[\W_]*ك\b/i,  // فك
-    /\bم[\W_]*ن[\W_]*ي[\W_]*و[\W_]*ك\b/i,  // منيوك
-    /\bق[\W_]*ح[\W_]*ب[\W_]*ه\b/i,  // قحبته
-    /\bق[\W_]*ا[\W_]*ن[\W_]*د[\W_]*و\b/i,  // قاندو
-    /\bز[\W_]*و[\W_]*ط\b/i,  // زوط
-    /\bز[\W_]*ن[\W_]*ج[\W_]*ي\b/i,  // زنجى
-    /\bg[\W_]*y[\W_]*a[\W_]*t\b/i,  // gyat
-    /\bط[\W_]*ي[\W_]*ز\b/i,  // طيز
-    /\bا[\W_]*س[\W_]*ت\b/i,  // است
-    /\bز[\W_]*ف[\W_]*ت\b/i   // زفت
+    // Arabic Bad Words
+    /\bنيق?ا\b/i,         // نيقا or نيق
+    /\bنق?ا\b/i,          // نقا
+    /\bنيق?ر\b/i,         // نيقر or نقر
+    /\bبتش\b/i,           // بتش
+    /\bبيتش\b/i,          // بييتش
+    /\bدك\b/i,            // دك
+    /\bنيق?ا?ز\b/i,       // نيقاز or نقاز
+    /\bقاي\b/i,           // قاي
+    /\bقي\b/i,            // قي
+    /\bزوط\b/i,           // زوط
+    /\bأمك\b/i,           // أمك
+    /\bف?ك\b/i,           // فك or ف
+    /\bمنيوك\b/i,         // منيوك
+    /\bقحبته\b/i,         // قحبته
+    /\bقاندو\b/i,         // قاندو
+    /\bزنجى\b/i,          // زنجى
+    /\bط?ي?ز\b/i,          // طيز
+    /\bزفت\b/i,           // زفت
+    
+    // English Bad Words
+    /\b(your[\W_]*mom|you[\W_]*mom)\b/i,    // "your mom", "you mom"
+    /\b(f[\W_]*u[\W_]*c[\W_]*k)\b/i,          // "fuck"
+    /\b(b[\W_]*i[\W_]*t[\W_]*c[\W_]*h)\b/i,    // "bitch"
+    /\b(d[\W_]*i[\W_]*c[\W_]*k)\b/i,           // "dick"
+    /\b(c[\W_]*u[\W_]*n[\W_]*t)\b/i,           // "cunt"
+    /\b(s[\W_]*h[\W_]*i[\W_]*t)\b/i,           // "shit"
+    /\b(a[\W_]*s[\W_]*s)\b/i,                  // "ass"
+    /\b(m[\W_]*o[\W_]*t[\W_]*h[\W_]*e[\W_]*r)\b/i, // "mother"
+    /\b(p[\W_]*r[\W_]*i[\W_]*ck)\b/i,          // "prick"
+    /\b(n[\W_]*i[\W_]*g[\W_]*g[\W_]*a)\b/i,    // "nigga"
+    /\b(s[\W_]*l[\W_]*u[\W_]*t)\b/i,           // "slut"
+    /\b(w[\W_]*h[\W_]*o[\W_]*r[\W_]*e)\b/i,    // "whore"
+    /\b(b[\W_]*a[\W_]*s[\W_]*t[\W_]*a[\W_]*r[\W_]*d)\b/i // "bastard"
 ];
 
+const warnings = {}; // This will store warnings for each user
 
-// Warning Map
-const warnings = {};
-
-// Bad Words Detection
+// Handle messages
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
     const messageContent = message.content.toLowerCase();
-    const BadWordsFound = BadWordsRegex.some(regex => regex.test(messageContent));
-    const userId = message.author.id;
 
-    if (!warnings[userId]) warnings[userId] = 0;
+    // Check if any bad word exists in the message content
+    const BadWordsFound = BadWordsRegex.some(regex => regex.test(messageContent));
+
+    // Debug: log the result of the regex test
+    console.log('Message content:', messageContent);
+    console.log('Bad words found:', BadWordsFound);
 
     if (BadWordsFound) {
-        warnings[userId]++;
+        console.log('Detected bad word! Applying warning...');
+        
+        // Increment the user's warning count
+        let userWarnings = warnings[message.author.id] || 0;
+        userWarnings += 1;
+        warnings[message.author.id] = userWarnings;
+
         const WarnEmbed = new EmbedBuilder()
             .setColor('Orange')
             .setTitle(`**تحذير إلى ${message.author.displayName}**`)
             .setDescription(
                 `**السبب**  
-    كلام سيء  
+        كلام سيء  
 
-    **العقوبة**  
-    تايم أوت  
+        **العقوبة**  
+        تايم أوت  
 
-    **المدة**  
-    10 دقائق  
+        **المدة**  
+        10 دقائق  
 
-    **محتوى الرسالة**  
-    ${message.content}  
+        **محتوى الرسالة**  
+        ${message.content}  
 
-    **التحذيرات المتبقية**  
-    ${5 - warnings[userId]}` 
+        **التحذيرات المتبقية**  
+        ${5 - userWarnings}`
             );
 
-        // تحديد قناة التحذيرات
+        // Send the warning to the designated channel
         const warningChannel = message.guild.channels.cache.get('1316420636075102268');
-        
-        // إرسال التحذير إلى القناة
         if (warningChannel) {
             warningChannel.send({ embeds: [WarnEmbed] })
                 .then(() => message.delete())
                 .catch(() => console.log('Warning: Failed to send warning embed or delete message'));
-        } else {
-            console.log('Warning: Warning channel not found');
         }
 
         // Apply timeout (10 minutes)
-        const member = message.guild.members.cache.get(userId);
+        const member = message.guild.members.cache.get(message.author.id);
         if (member) {
-            member.timeout(10 * 60 * 1000, 'استخدام كلمات سيئة') // 10 minutes in milliseconds
-                .catch(() => console.log('Warning: Failed to timeout member'));
+            try {
+                await member.timeout(10 * 60 * 1000, 'استخدام كلمات سيئة');
+            } catch (error) {
+                console.warn(`Failed to apply timeout to ${message.author.tag}. Error: ${error}`);
+            }
         }
 
         // Check if warnings exceed limit and kick the user
-        if (warnings[userId] >= 5) {
+        if (userWarnings >= 5) {
             const punishEmbed = new EmbedBuilder()
                 .setColor('Red')
                 .setTitle(`**تم طرد ${message.author.displayName}**`)
@@ -193,10 +204,13 @@ client.on('messageCreate', async (message) => {
             }
 
             // Kick the user
-            const memberToKick = message.guild.members.cache.get(userId);
+            const memberToKick = message.guild.members.cache.get(message.author.id);
             if (memberToKick) {
-                memberToKick.kick('وصل الحد الأقصى من التحذيرات')
-                    .catch(() => console.log('Warning: Failed to kick member'));
+                try {
+                    await memberToKick.kick('وصل الحد الأقصى من التحذيرات');
+                } catch (error) {
+                    console.warn(`Failed to kick ${message.author.tag}. Error: ${error}`);
+                }
             }
         }
     }
