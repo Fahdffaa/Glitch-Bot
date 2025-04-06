@@ -86,9 +86,9 @@ const GuildsEmbed = new EmbedBuilder()
 // Punishments Embed
 const PunishmentsEmbed = new EmbedBuilder()
     .setColor('Red')
-    .setTitle('**تم طرد العضو**')
+    .setTitle('**تم حظر العضو**')
     .setDescription(
-        `**العقوبة**: طرد من السيرفر  
+        `**العقوبة**: حظر من السيرفر  
 **السبب**: وصول الحد الأقصى من التحذيرات`
     );
 
@@ -147,7 +147,7 @@ client.on('messageCreate', async (message) => {
     if (BadWordsFound) {
         console.log('Detected bad word! Applying warning...');
         
-        // Increment the user's warning count
+        // Increment the users warning count
         let userWarnings = warnings[message.author.id] || 0;
         userWarnings += 1;
         warnings[message.author.id] = userWarnings;
@@ -190,11 +190,11 @@ client.on('messageCreate', async (message) => {
             }
         }
 
-        // Check if warnings exceed limit and kick the user
+        // Check if warnings exceed limit and ban the user
         if (userWarnings >= 5) {
             const punishEmbed = new EmbedBuilder()
                 .setColor('Red')
-                .setTitle(`**تم طرد ${message.author.displayName}**`)
+                .setTitle(`**تم حظر ${message.author.displayName}**`)
                 .setDescription('**السبب** : وصول الحد الأقصى من التحذيرات');
 
             // Send punishment notice
@@ -203,13 +203,13 @@ client.on('messageCreate', async (message) => {
                     .catch(() => console.log('Warning: Failed to send punishment embed'));
             }
 
-            // Kick the user
-            const memberToKick = message.guild.members.cache.get(message.author.id);
-            if (memberToKick) {
+            // Ban the user
+            const memberToBan = message.guild.members.cache.get(message.author.id);
+            if (memberToBan) {
                 try {
-                    await memberToKick.kick('وصل الحد الأقصى من التحذيرات');
+                    await memberToBan.ban({ reason: 'وصل الحد الأقصى من التحذيرات' });
                 } catch (error) {
-                    console.warn(`Failed to kick ${message.author.tag}. Error: ${error}`);
+                    console.warn(`Failed to ban ${message.author.tag}. Error: ${error}`);
                 }
             }
         }
@@ -352,11 +352,11 @@ client.on('messageCreate', async (message) => {
                         });
                 }
 
-                // Check if warnings exceed limit and kick the user
+                // Check if warnings exceed limit and ban the user
                 if (warnings[userId] >= 5) {
                     const punishEmbed = new EmbedBuilder()
                         .setColor('Red')
-                        .setTitle(`**تم طرد ${mentionedUser.displayName}**`)
+                        .setTitle(`**تم حظر ${mentionedUser.displayName}**`)
                         .setDescription('**السبب** : وصول الحد الأقصى من التحذيرات');
 
                     // Send punishment notice
@@ -364,10 +364,10 @@ client.on('messageCreate', async (message) => {
                         warningChannel.send({ embeds: [punishEmbed] });
                     }
 
-                    // Kick the user
-                    const memberToKick = message.guild.members.cache.get(userId);
-                    if (memberToKick) {
-                        memberToKick.kick('وصل الحد الأقصى من التحذيرات')
+                    // Ban the user
+                    const memberToBan = message.guild.members.cache.get(userId);
+                    if (memberToBan) {
+                        memberToBan.ban({ reason: 'وصل الحد الأقصى من التحذيرات' })
                             .catch(console.error);
                     }
                 }
